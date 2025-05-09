@@ -9,12 +9,12 @@ pipeline {
                 script {
                     cleanWs()
                     git credentialsId: 'github-token', url: 'https://github.com/pbialecki/abcd-student', branch: 'main'
+                    sh 'mkdir -p results/'
                 }
             }
         }
         stage('[ZAP] Baseline passive-scan') {
             steps {
-                sh 'mkdir -p results/'
                 sh '''
                     docker run --name juice-shop -d --rm \
                         -p 3000:3000 \
@@ -29,6 +29,11 @@ pipeline {
                         "zap.sh -cmd -addonupdate; zap.sh -cmd -addoninstall communityScripts -addoninstall pscanrulesAlpha -addoninstall pscanrulesBeta -autorun /zap/wrk/passive_scan.yaml" \
                         || true
                 '''
+            }
+        }
+        stage('[OSV] SCA scan') {
+            steps {
+                sh 'osv-scanner scan --lockfile package-lock.json --format json --output results/sca-osv-scanner.json || true'
             }
         }
     }
