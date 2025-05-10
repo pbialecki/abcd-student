@@ -36,6 +36,11 @@ pipeline {
                 sh 'osv-scanner scan --lockfile package-lock.json --format json --output results/sca-osv-scanner.json || true'
             }
         }
+        stage('TruffleHog Scan') {
+            steps {
+                sh 'trufflehog git file://$PWD --json --no-update > results/trufflehog-results.json'
+            }
+        }
     }
     post {
         always {
