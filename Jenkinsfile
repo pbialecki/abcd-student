@@ -41,6 +41,11 @@ pipeline {
                 sh 'trufflehog git file://$PWD --json --no-update > results/trufflehog-results.json'
             }
         }
+        stage('Semgrep Scan') {
+            steps {
+                sh 'semgrep scan --config auto --output results/semgrep-results.json --json'
+            }
+        }
     }
     post {
         always {
